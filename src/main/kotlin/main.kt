@@ -13,7 +13,9 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
-import world.ItemTypes
+import world.ItemKindTypes
+import world.ItemModifierTypes
+import world.UserRaceTypes
 
 fun main() {
 
@@ -25,22 +27,27 @@ fun main() {
         addLogger(StdOutSqlLogger)
         SchemaUtils.create(Users, Items)
 
-        val thomasUser = User.new {
-            name = "thomas"
+
+        val chadUser = User.new {
+            name = "chad"
+            race = UserRaceTypes.Human
         }
 
-        val toboUser = User.new {
-            name = "tobo"
+        val thadUser = User.new {
+            name = "thad"
+            race = UserRaceTypes.Human
         }
 
-        val kaineUser = User.new {
-            name = "kaine"
+        val ladUser = User.new {
+            name = "lad"
+            race = UserRaceTypes.Human
         }
 
 
-        val daSwordItem = Item.new {
-            owner = toboUser
-            type = ItemTypes.Sword
+        val swordItem = Item.new {
+            owner = thadUser
+            kind = ItemKindTypes.Sword
+            modifiers = listOf(ItemModifierTypes.Rusty)
         }
 
     }
@@ -71,7 +78,7 @@ fun main() {
             }
             get("/item/{id}") {
                 val itemId = call.parameters["id"]?.toIntOrNull() ?: return@get
-                val item = transaction { Item.findById(itemId) }
+                val item = transaction { Item.findById(itemId) } ?: return@get
                 call.respondText(item.toString(), ContentType.Text.Plain)
             }
 
