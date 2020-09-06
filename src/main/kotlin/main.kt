@@ -1,8 +1,6 @@
-import databases.Item
-import databases.Items
-import databases.User
-import databases.Users
+import databases.*
 import io.ktor.application.*
+import io.ktor.html.*
 import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
@@ -13,9 +11,9 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
-import world.ItemKindTypes
-import world.ItemModifierTypes
-import world.UserRaceTypes
+import webui.Landing
+import webui.UserInfo
+import world.*
 
 fun main() {
 
@@ -25,29 +23,43 @@ fun main() {
     transaction {
 
         addLogger(StdOutSqlLogger)
-        SchemaUtils.create(Users, Items)
+        SchemaUtils.create(Items, Spells, Users)
 
 
         val chadUser = User.new {
             name = "chad"
-            race = UserRaceTypes.Human
+            race = UserRace.Human
         }
 
         val thadUser = User.new {
             name = "thad"
-            race = UserRaceTypes.Human
+            race = UserRace.Human
         }
 
         val ladUser = User.new {
             name = "lad"
-            race = UserRaceTypes.Human
+            race = UserRace.Human
         }
 
 
         val swordItem = Item.new {
-            owner = thadUser
-            kind = ItemKindTypes.Sword
-            modifiers = listOf(ItemModifierTypes.Rusty)
+            owner = chadUser
+            kind = ItemKind.Sword
+            modifiers = listOf(ItemModifierFlags.Rusty)
+        }
+
+
+        val axeItem = Item.new {
+            owner = chadUser
+            kind = ItemKind.Axe
+            modifiers = listOf(ItemModifierFlags.Rusty)
+        }
+
+
+        val fireballSpell = Spell.new {
+            owner = chadUser
+            usage = SpellUsage.Ranged
+            element = SpellElement.Fire
         }
 
     }
@@ -57,18 +69,13 @@ fun main() {
         routing {
 
             get("/") {
-                call.respondText("Welcome!", ContentType.Text.Plain)
-            }
+                val usr = transaction { User.findById(1) } ?: return@get
 
-            // User Information
-            get("/user") {
-                val usersList = transaction { User.all().joinToString() }
-                call.respondText("users:\n$usersList", ContentType.Text.Plain)
-            }
-            get("/user/{id}") {
-                val userId = call.parameters["id"]?.toIntOrNull() ?: return@get
-                val user = transaction { User.findById(userId) }
-                call.respondText(user.toString(), ContentType.Text.Plain)
+                call.respondHtmlTemplate(Landing()) {
+                    content {
+                        insert(UserInfo(usr)) {}
+                    }
+                }
             }
 
             // Item Information
@@ -80,6 +87,28 @@ fun main() {
                 val itemId = call.parameters["id"]?.toIntOrNull() ?: return@get
                 val item = transaction { Item.findById(itemId) } ?: return@get
                 call.respondText(item.toString(), ContentType.Text.Plain)
+            }
+
+            // Spell Information
+            get("/spell") {
+                val spellList = transaction { Spell.all().joinToString() }
+                call.respondText("spells:\n$spellList", ContentType.Text.Plain)
+            }
+            get("/spell/{id}") {
+                val spellId = call.parameters["id"]?.toIntOrNull() ?: return@get
+                val spell = transaction { Item.findById(spellId) } ?: return@get
+                call.respondText(spell.toString(), ContentType.Text.Plain)
+            }
+
+            // User Information
+            get("/user") {
+                val usersList = transaction { User.all().joinToString() }
+                call.respondText("users:\n$usersList", ContentType.Text.Plain)
+            }
+            get("/user/{id}") {
+                val userId = call.parameters["id"]?.toIntOrNull() ?: return@get
+                val user = transaction { User.findById(userId) }
+                call.respondText(user.toString(), ContentType.Text.Plain)
             }
 
         }

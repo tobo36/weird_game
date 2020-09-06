@@ -4,14 +4,14 @@ import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
-import world.UserRaceTypes
+import world.UserRace
 
 
 object Users : IntIdTable() {
 
     val name = varchar("name", length = 64)
 
-    val race = enumeration("type", UserRaceTypes::class).default(UserRaceTypes.Invalid)
+    val race = enumeration("type", UserRace::class)
 
 }
 
@@ -28,7 +28,9 @@ class User(id: EntityID<Int>) : IntEntity(id) {
 
     val items by Item referrersOn Items.owner
 
+    val spells by Spell referrersOn Spells.owner
 
-    override fun toString() = "[ id=$id, name=$name, items=${items.joinToString { it.name }} ]"
+
+    override fun toString() = "[ User id=$id, name=$name, race=$race, items=${items.joinToString()}, spells=${spells.joinToString()} ]"
 
 }
