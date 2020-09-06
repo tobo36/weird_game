@@ -29,15 +29,10 @@ class Item(id: EntityID<Int>) : IntEntity(id) {
     var kind by Items.kind
 
 
-    private var _modifiers by Items.modifiers
-
-    var modifiers: List<ItemModifierFlags>
-        get() {
-            return ItemModifierFlags.unpack(_modifiers).toList()
-        }
-        set(value) {
-            _modifiers = ItemModifierFlags.pack(value.asSequence())
-        }
+    var modifiers: List<ItemModifierFlags> by Items.modifiers.transform(
+        { modifiers.joinToString("|") },
+        { it.split("|").map(ItemModifierFlags::valueOf) }
+    )
 
 
     override fun toString() = "[ Item id=$id, kind=$kind, modifiers=${modifiers.joinToString(" ")} ]"
