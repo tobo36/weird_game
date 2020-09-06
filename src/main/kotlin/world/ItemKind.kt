@@ -11,6 +11,8 @@ enum class ItemKind {
     PinkEye,
     RedBall,
     Cokcstar,
+    Beepis,
+    CocoaCola,
     Bred,
     Drank,
     Meat,
@@ -24,11 +26,14 @@ enum class ItemKind {
     LeftGlove,
     RightGlove,
     Ring,
-    Neck,
+    NeckLace,
+    Scarf,
+    NeckChain
     LeftShoe,
     RightShoe,
     RightSock,
     LeftSock,
-    Rags
+    Rags,
+    Chain\
     
 }
